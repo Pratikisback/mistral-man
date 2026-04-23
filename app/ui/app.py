@@ -1,13 +1,14 @@
 import streamlit as st
 import os
 
-from vector_store import retrieve_chunks, get_all_documents, document_exists, rerank_chunks, deduplicate_chunks
-from rag_pipeline import build_prompt, ask_llm_stream
-from cache import get_cached_answer, set_cached_answer
-from ingest import ingest  
+from app.db.vector_store import retrieve_chunks, get_all_documents, document_exists, rerank_chunks, deduplicate_chunks
+from app.llm.rag_pipeline import build_prompt, ask_llm_stream
+from app.core.cache import get_cached_answer, set_cached_answer
+from app.services.ingestion_service import ingest_pdf
+
 import os
 
-DATA_DIR = "../LLM/data"
+DATA_DIR = "/app/llm/data"
 os.makedirs(DATA_DIR, exist_ok=True)
 
 st.set_page_config(page_title="PDF Q&A", layout="centered")
@@ -31,7 +32,7 @@ if uploaded_file:
             f.write(uploaded_file.read())
 
         with st.spinner("Ingesting PDF..."):
-            ingest(file_path)
+            ingest_pdf(file_path, uploaded_file.name)
 
         st.success(f"✅ {uploaded_file.name} uploaded and indexed!")
     else:

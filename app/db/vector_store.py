@@ -1,6 +1,5 @@
-from db import get_connection
-from embeddings import get_embedding
-from rag_pipeline import build_prompt, ask_llm
+from app.db.db import get_connection
+from app.embeddings import get_embedding
 import uuid
 
 def create_document(name):
