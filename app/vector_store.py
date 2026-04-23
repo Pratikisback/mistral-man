@@ -58,7 +58,47 @@ def search(query):
             return cursor.fetchall()
         
 
-# Retrieving the top 3 matching chunks
+def score_chunk(chunk, query):
+    chunk_lower = chunk.lower()
+    query_lower = query.lower()
+
+    # keyword overlap
+    keyword_score = sum(
+        1 for word in query_lower.split()
+        if word in chunk_lower
+    )
+
+    # phrase boost
+    phrase_score = 3 if query_lower in chunk_lower else 0
+
+    # length penalty (avoid huge chunks dominating)
+    length_penalty = len(chunk) / 1000
+
+    return keyword_score + phrase_score - length_penalty
+
+
+def rerank_chunks(chunks, query, top_n=5):
+    scored = [(chunk, score_chunk(chunk, query)) for chunk in chunks]
+
+    scored.sort(key=lambda x: x[1], reverse=True)
+
+    return [c[0] for c in scored[:top_n]]
+
+
+def deduplicate_chunks(chunks):
+    seen = set()
+    unique = []
+
+    for c in chunks:
+        key = c[:100]  # simple fingerprint
+        if key not in seen:
+            seen.add(key)
+            unique.append(c)
+
+    return unique
+
+
+# Retrieving the top k matching chunks
 def retrieve_chunks(query, top_k=3, document_id=None):
 
     if not query or not query.strip():
@@ -75,7 +115,7 @@ def retrieve_chunks(query, top_k=3, document_id=None):
                     SELECT content
                     FROM chunks
                     WHERE document_id = %s
-                    ORDER BY embedding <-> %s::vector
+                    ORDER BY embedding <=> %s::vector
                     LIMIT %s
                     """,
                     (document_id, query_embedding, top_k)

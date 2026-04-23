@@ -1,7 +1,7 @@
 import streamlit as st
 import os
 
-from vector_store import retrieve_chunks, get_all_documents, document_exists
+from vector_store import retrieve_chunks, get_all_documents, document_exists, rerank_chunks, deduplicate_chunks
 from rag_pipeline import build_prompt, ask_llm_stream
 from cache import get_cached_answer, set_cached_answer
 from ingest import ingest  
@@ -53,6 +53,7 @@ selected_doc_id = None
 if selected_doc_name != "All Documents":
     selected_doc_id = doc_map[selected_doc_name]
 
+
 # =========================
 # ❓ Ask Question
 # =========================
@@ -74,11 +75,14 @@ try:
 
             contexts = retrieve_chunks(
                 query,
-                top_k=3,
+                top_k=20,
                 document_id=selected_doc_id
             )
+            candidates = retrieve_chunks(query, top_k=15)
+            candidates = deduplicate_chunks(candidates)
+            top_chunks = rerank_chunks(candidates, query, top_n=5)
 
-            prompt = build_prompt(query, contexts)
+            prompt = build_prompt(query, top_chunks)
 
             full_answer = ""
 

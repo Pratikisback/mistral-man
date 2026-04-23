@@ -41,7 +41,7 @@ def stream_answer(query: str, document_id: str | None):
     )
     print("\n==== DEBUG START ====")
     print("Query:", query)
-    print("Selected doc ID:", selected_doc_id)
+    print("Selected doc ID:", document_id)
     print("Contexts count:", len(contexts))
 
     for i, ctx in enumerate(contexts):
