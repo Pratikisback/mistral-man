@@ -21,7 +21,7 @@ def build_prompt(query, contexts):
 
 def ask_llm(prompt):
     response = requests.post(
-        "http://localhost:11434/api/generate",
+        "http://ollama:11434/api/generate",
         json={
             "model": "mistral",
             "prompt": prompt,
@@ -33,7 +33,7 @@ def ask_llm(prompt):
 
 def ask_llm_stream(prompt):
     response = requests.post(
-        "http://localhost:11434/api/generate",
+        "http://ollama:11434/api/generate",
         json={
             "model": "mistral",
             "prompt": prompt,

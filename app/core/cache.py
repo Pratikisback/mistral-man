@@ -3,8 +3,10 @@ import hashlib
 import json
 from dotenv import load_dotenv
 import os
-r = redis.Redis(host='localhost', port=6379, db=0)
-
+r = redis.Redis(
+    host=os.getenv("REDIS_HOST", "localhost"),
+    port=6379
+)
 
 def get_cache_key(query):
     return "rag:" + hashlib.md5(query.encode()).hexdigest()
