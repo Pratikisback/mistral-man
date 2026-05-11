@@ -124,7 +124,7 @@ def retrieve_chunks(query, top_k=3, document_id=None):
                     """
                     SELECT content
                     FROM chunks
-                    ORDER BY embedding <-> %s::vector
+                    ORDER BY embedding <=> %s::vector
                     LIMIT %s
                     """,
                     (query_embedding, top_k)
